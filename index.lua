@@ -9,7 +9,7 @@ local Window = Rayfield:CreateWindow({
     Theme = "Dark",
 })
 
--- Function for Safe Teleporting
+-- Function for Smooth & Safe Teleport (Bypasses Anti-Cheat)
 local function SafeTeleport(destination)
     local player = game.Players.LocalPlayer
     if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
@@ -23,30 +23,27 @@ local function SafeTeleport(destination)
     end
 
     local hrp = player.Character.HumanoidRootPart
+    local TweenService = game:GetService("TweenService")
 
-    -- Temporarily anchor character to prevent glitching
+    -- Create tween to move smoothly
+    local tweenInfo = TweenInfo.new(
+        (destination - hrp.Position).Magnitude / 250, -- Time based on distance
+        Enum.EasingStyle.Linear,
+        Enum.EasingDirection.Out
+    )
+
+    local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(destination)})
+
+    -- Anchor to prevent falling & anti-cheat kick
     hrp.Anchored = true
+    tween:Play()
+    tween.Completed:Wait()
 
-    -- Move in small steps to avoid anti-cheat detection
-    local steps = 15  -- Number of steps
-    local delayTime = 0.1  -- Time between each step
-    local startPosition = hrp.Position
-
-    for i = 1, steps do
-        local alpha = i / steps
-        local newPosition = startPosition:Lerp(destination, alpha)
-        hrp.CFrame = CFrame.new(newPosition)
-        task.wait(delayTime)
-    end
-
-    -- Final teleport to exact position
-    hrp.CFrame = CFrame.new(destination)
-    task.wait(0.1)
-
-    -- Unanchor character to allow normal movement
+    -- Wait a bit & then unanchor
+    task.wait(0.2)
     hrp.Anchored = false
 
-    -- Notify user
+    -- Notify player
     Rayfield:Notify({
         Title = "Teleport Complete!",
         Content = "You have arrived safely.",
