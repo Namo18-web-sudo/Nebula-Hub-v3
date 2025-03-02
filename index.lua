@@ -9,29 +9,37 @@ local Window = Rayfield:CreateWindow({
     Theme = "Dark",
 })
 
--- Function to Smoothly Teleport Using Redz Hub Speed
-local function RedzSafeTeleport(position)
+-- Function for Smooth Teleporting using TweenService
+local function SafeTeleport(destination)
     local player = game.Players.LocalPlayer
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        local hrp = player.Character.HumanoidRootPart
-        local stepSize = 5  -- Adjust this for safer teleport (Redz Hub uses small steps)
-        local waitTime = 0.05  -- Adjusted speed (similar to Redz Hub)
-        local startPosition = hrp.Position
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
+        Rayfield:Notify({
+            Title = "Error",
+            Content = "Character not found!",
+            Duration = 3,
+            Type = "Error"
+        })
+        return
+    end
 
-        while (hrp.Position - position).Magnitude > stepSize do
-            hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(position), 0.1)  -- Smooth transition
-            task.wait(waitTime)  -- Delay between steps
-        end
+    local hrp = player.Character.HumanoidRootPart
+    local tweenService = game:GetService("TweenService")
+    local distance = (hrp.Position - destination).Magnitude
+    local speed = 200  -- Adjust teleport speed
+    local time = distance / speed
 
-        hrp.CFrame = CFrame.new(position)  -- Final teleport position
+    local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
+    local tween = tweenService:Create(hrp, tweenInfo, {Position = destination})
+    tween:Play()
 
+    tween.Completed:Connect(function()
         Rayfield:Notify({
             Title = "Teleport Success!",
             Content = "You have safely teleported.",
             Duration = 3,
             Type = "Success"
         })
-    end
+    end)
 end
 
 -- First Sea Locations
@@ -66,18 +74,18 @@ local ThirdSea = {
     ["Sea of Treats"] = Vector3.new(-190, 50, -12000),
 }
 
--- Create Tabs for Each Sea
+-- Create Tabs
 local FirstSeaTab = Window:CreateTab("First Sea", 4483362458)
 local SecondSeaTab = Window:CreateTab("Second Sea", 4483362458)
 local ThirdSeaTab = Window:CreateTab("Third Sea", 4483362458)
 
--- Function to Add Teleport Buttons
+-- Function to Create Teleport Buttons
 local function CreateTeleportButtons(tab, locations)
     for name, position in pairs(locations) do
         tab:CreateButton({
             Name = "Teleport to " .. name,
             Callback = function()
-                RedzSafeTeleport(position)
+                SafeTeleport(position)
             end
         })
     end
@@ -88,7 +96,7 @@ CreateTeleportButtons(FirstSeaTab, FirstSea)
 CreateTeleportButtons(SecondSeaTab, SecondSea)
 CreateTeleportButtons(ThirdSeaTab, ThirdSea)
 
--- Misc Tab for Special Features
+-- Misc Tab for Extra Features
 local MiscTab = Window:CreateTab("Misc", 4483362458)
 
 -- Teleport to Nearest Chest
@@ -110,7 +118,7 @@ MiscTab:CreateButton({
         end
 
         if closestChest then
-            RedzSafeTeleport(closestChest:GetPivot().Position)
+            SafeTeleport(closestChest:GetPivot().Position)
         else
             Rayfield:Notify({
                 Title = "Error",
