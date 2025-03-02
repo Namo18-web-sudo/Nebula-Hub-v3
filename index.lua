@@ -9,7 +9,7 @@ local Window = Rayfield:CreateWindow({
     Theme = "Dark",
 })
 
--- Function for Safe Teleporting with Instant Stop
+-- Function for Safe Teleporting
 local function SafeTeleport(destination)
     local player = game.Players.LocalPlayer
     if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
@@ -23,31 +23,36 @@ local function SafeTeleport(destination)
     end
 
     local hrp = player.Character.HumanoidRootPart
-    local tweenService = game:GetService("TweenService")
-    local distance = (hrp.Position - destination).Magnitude
-    local speed = 200  -- Adjust teleport speed
-    local time = distance / speed
 
-    local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
-    local tween = tweenService:Create(hrp, tweenInfo, {Position = destination})
-    
-    -- Start the teleport
-    tween:Play()
+    -- Temporarily anchor character to prevent glitching
+    hrp.Anchored = true
 
-    -- Check every 0.1 seconds if we reached the location
-    local connection
-    connection = game:GetService("RunService").Heartbeat:Connect(function()
-        if (hrp.Position - destination).Magnitude < 5 then  -- Stops if within 5 studs
-            tween:Cancel()  -- Stop teleporting immediately
-            connection:Disconnect()  -- Stop checking position
-            Rayfield:Notify({
-                Title = "Teleport Complete!",
-                Content = "You have arrived.",
-                Duration = 3,
-                Type = "Success"
-            })
-        end
-    end)
+    -- Move in small steps to avoid anti-cheat detection
+    local steps = 15  -- Number of steps
+    local delayTime = 0.1  -- Time between each step
+    local startPosition = hrp.Position
+
+    for i = 1, steps do
+        local alpha = i / steps
+        local newPosition = startPosition:Lerp(destination, alpha)
+        hrp.CFrame = CFrame.new(newPosition)
+        task.wait(delayTime)
+    end
+
+    -- Final teleport to exact position
+    hrp.CFrame = CFrame.new(destination)
+    task.wait(0.1)
+
+    -- Unanchor character to allow normal movement
+    hrp.Anchored = false
+
+    -- Notify user
+    Rayfield:Notify({
+        Title = "Teleport Complete!",
+        Content = "You have arrived safely.",
+        Duration = 3,
+        Type = "Success"
+    })
 end
 
 -- First Sea Locations
