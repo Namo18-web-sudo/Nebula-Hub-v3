@@ -4,12 +4,12 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 -- Create UI Window
 local Window = Rayfield:CreateWindow({
     Name = "Blox Fruits Teleport Hub",
-    LoadingTitle = "Blox Fruits Teleporting...",
+    LoadingTitle = "Teleporting...",
     LoadingSubtitle = "By YourName",
     Theme = "Dark",
 })
 
--- Function for Smooth Teleporting using TweenService
+-- Function for Safe Teleporting with Instant Stop
 local function SafeTeleport(destination)
     local player = game.Players.LocalPlayer
     if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
@@ -30,15 +30,23 @@ local function SafeTeleport(destination)
 
     local tweenInfo = TweenInfo.new(time, Enum.EasingStyle.Linear)
     local tween = tweenService:Create(hrp, tweenInfo, {Position = destination})
+    
+    -- Start the teleport
     tween:Play()
 
-    tween.Completed:Connect(function()
-        Rayfield:Notify({
-            Title = "Teleport Success!",
-            Content = "You have safely teleported.",
-            Duration = 3,
-            Type = "Success"
-        })
+    -- Check every 0.1 seconds if we reached the location
+    local connection
+    connection = game:GetService("RunService").Heartbeat:Connect(function()
+        if (hrp.Position - destination).Magnitude < 5 then  -- Stops if within 5 studs
+            tween:Cancel()  -- Stop teleporting immediately
+            connection:Disconnect()  -- Stop checking position
+            Rayfield:Notify({
+                Title = "Teleport Complete!",
+                Content = "You have arrived.",
+                Duration = 3,
+                Type = "Success"
+            })
+        end
     end)
 end
 
