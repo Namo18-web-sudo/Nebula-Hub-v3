@@ -3,7 +3,7 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create UI Window
 local Window = Rayfield:CreateWindow({
-    Name = "NEBULA AutoFarm Hub",
+    Name = "NEBULAski AutoFarm Hub",
     LoadingTitle = "Loading AutoFarm...",
     LoadingSubtitle = "By NEBULA",
     Theme = "Dark",
@@ -15,7 +15,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local VirtualUser = game:GetService("VirtualUser")
 local RunService = game:GetService("RunService")
 
--- Anti AFK
+-- Anti AFK Bypass
 player.Idled:Connect(function()
     VirtualUser:CaptureController()
     VirtualUser:ClickButton2(Vector2.new())
@@ -30,7 +30,7 @@ local function EquipWeapon(weapon)
     end
 end
 
--- List of First Sea Islands & Quests
+-- First Sea Islands & Quests
 local FirstSeaQuests = {
     { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit" },
     { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Monkey" },
@@ -44,17 +44,9 @@ local FirstSeaQuests = {
     { Level = 120, Name = "Chief Petty Officers", NPC = "Marine Quest Giver", CFrame = CFrame.new(-5038, 28, 4326), Mob = "Chief Petty Officer" },
     { Level = 150, Name = "Sky Bandits", NPC = "Sky Quest Giver", CFrame = CFrame.new(-4840, 718, -2623), Mob = "Sky Bandit" },
     { Level = 175, Name = "Dark Masters", NPC = "Sky Quest Giver", CFrame = CFrame.new(-4840, 718, -2623), Mob = "Dark Master" },
-    { Level = 190, Name = "Prisoners", NPC = "Prison Quest Giver", CFrame = CFrame.new(5310, 2, 476), Mob = "Prisoner" },
-    { Level = 250, Name = "Toga Warriors", NPC = "Colosseum Quest Giver", CFrame = CFrame.new(-1576, 7, -2985), Mob = "Toga Warrior" },
-    { Level = 275, Name = "Gladiators", NPC = "Colosseum Quest Giver", CFrame = CFrame.new(-1576, 7, -2985), Mob = "Gladiator" },
-    { Level = 300, Name = "Military Soldiers", NPC = "Magma Quest Giver", CFrame = CFrame.new(-5319, 12, 8517), Mob = "Military Soldier" },
-    { Level = 375, Name = "Fishman Warriors", NPC = "Fishman Quest Giver", CFrame = CFrame.new(61122, 18, 1569), Mob = "Fishman Warrior" },
-    { Level = 400, Name = "Fishman Commandos", NPC = "Fishman Quest Giver", CFrame = CFrame.new(61122, 18, 1569), Mob = "Fishman Commando" },
-    { Level = 450, Name = "God's Guards", NPC = "Sky Exp. Quest Giver", CFrame = CFrame.new(-4722, 845, -1918), Mob = "God's Guard" },
-    { Level = 475, Name = "Shandas", NPC = "Sky Exp. Quest Giver", CFrame = CFrame.new(-4722, 845, -1918), Mob = "Shanda" },
 }
 
--- AutoFarm Function
+-- Function to AutoFarm
 local function AutoFarm()
     while _G.AutoFarm do
         task.wait(0.1)
@@ -94,7 +86,8 @@ local function AutoFarm()
                     repeat
                         task.wait()
                         EquipWeapon("Combat") -- Change to preferred weapon
-                        player.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame + Vector3.new(0, 10, 0)
+                        -- Hover Above NPCs
+                        player.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame + Vector3.new(0, 15, 0)
                         enemy.Humanoid.Health = 0
                     until enemy.Humanoid.Health <= 0 or not _G.AutoFarm
                 end
