@@ -5,7 +5,7 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 local Window = Rayfield:CreateWindow({
     Name = "Blox Fruits Teleport Hub",
     LoadingTitle = "Teleporting...",
-    LoadingSubtitle = "By YourName",
+    LoadingSubtitle = "By Aura",
     Theme = "Dark",
 })
 
@@ -26,7 +26,7 @@ local function SafeTeleport(destination)
     local TweenService = game:GetService("TweenService")
 
     -- Redz Hub teleport speed (optimized)
-    local speed = 350  -- Adjusted for smooth bypass
+    local speed = 200  -- Adjusted for smooth bypass
 
     -- Create tween for smooth movement
     local tweenInfo = TweenInfo.new(
