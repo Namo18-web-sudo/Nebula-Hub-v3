@@ -19,10 +19,12 @@ local function EquipWeapon(weapon)
     end
 end
 
--- Function to Fly Above NPCs
-local function FlyAbove(target)
-    if target and target:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = target.HumanoidRootPart.CFrame + Vector3.new(0, 20, 0)
+-- Smooth Movement Function
+local function MoveToPosition(targetPos)
+    local char = player.Character
+    if char and char:FindFirstChild("HumanoidRootPart") then
+        local hrp = char.HumanoidRootPart
+        hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos), 0.1) -- Smooth movement
     end
 end
 
@@ -40,7 +42,7 @@ local Quests = {
 -- Function to Take Quest
 local function TakeQuest(quest)
     if not quest then return end
-    player.Character.HumanoidRootPart.CFrame = quest.CFrame
+    MoveToPosition(quest.CFrame.Position) -- Smooth teleport to quest giver
     task.wait(1)
 
     local args = {
@@ -59,7 +61,7 @@ local function AttackNPCs(quest)
             repeat
                 task.wait()
                 EquipWeapon("Combat") -- Change to preferred weapon
-                FlyAbove(enemy) -- Fly above the enemy
+                MoveToPosition(enemy.HumanoidRootPart.Position + Vector3.new(0, 15, 0)) -- Fly above NPC
                 enemy.Humanoid.Health = 0
             until enemy.Humanoid.Health <= 0 or not _G.AutoFarm
         end
