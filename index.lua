@@ -1,22 +1,30 @@
--- Load Rayfield UI
+-- Load Rayfield UI Library
 local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create UI Window
 local Window = Rayfield:CreateWindow({
     Name = "Blox Fruits Teleport Hub",
-    LoadingTitle = "Blox Fruits Teleport Menu",
+    LoadingTitle = "Blox Fruits Teleporting...",
     LoadingSubtitle = "By YourName",
     Theme = "Dark",
 })
 
--- Function to teleport player
+-- Function to Bypass Teleport Rollback
 local function TeleportTo(position)
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        player.Character.HumanoidRootPart.CFrame = CFrame.new(position)
+        local hrp = player.Character.HumanoidRootPart
+        local ts = game:GetService("TweenService")
+        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear) -- Smooth 1-second teleport
+
+        local goal = {CFrame = CFrame.new(position)}
+        local teleportTween = ts:Create(hrp, tweenInfo, goal)
+
+        teleportTween:Play()
+        
         Rayfield:Notify({
-            Title = "Success",
-            Content = "Teleported Successfully!",
+            Title = "Teleported!",
+            Content = "Successfully moved to location.",
             Duration = 3,
             Type = "Success"
         })
@@ -60,7 +68,7 @@ local FirstSeaTab = Window:CreateTab("First Sea", 4483362458)
 local SecondSeaTab = Window:CreateTab("Second Sea", 4483362458)
 local ThirdSeaTab = Window:CreateTab("Third Sea", 4483362458)
 
--- Create teleport buttons for each sea
+-- Function to Add Teleport Buttons
 local function CreateTeleportButtons(tab, locations)
     for name, position in pairs(locations) do
         tab:CreateButton({
@@ -72,12 +80,15 @@ local function CreateTeleportButtons(tab, locations)
     end
 end
 
+-- Generate Teleport Buttons
 CreateTeleportButtons(FirstSeaTab, FirstSea)
 CreateTeleportButtons(SecondSeaTab, SecondSea)
 CreateTeleportButtons(ThirdSeaTab, ThirdSea)
 
--- Teleport to Nearest Chest
+-- Misc Tab for Special Features
 local MiscTab = Window:CreateTab("Misc", 4483362458)
+
+-- Teleport to Nearest Chest
 MiscTab:CreateButton({
     Name = "Teleport to Nearest Chest",
     Callback = function()
