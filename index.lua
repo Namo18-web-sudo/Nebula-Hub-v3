@@ -27,24 +27,26 @@ local Toggle = FarmTab:CreateToggle({
     end
 })
 
--- Function to Equip Weapon
-local function EquipWeapon(weapon)
+-- Function to Equip Best Weapon
+local function EquipBestWeapon()
+    local weapons = {"Dark Blade", "Saber", "Dragon Talon", "Sharkman Karate", "Superhuman"}
     for _, tool in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if tool:IsA("Tool") and tool.Name == weapon then
+        if tool:IsA("Tool") and table.find(weapons, tool.Name) then
             game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
+            return tool.Name
         end
     end
+    return "Combat"
 end
 
--- Smooth Teleport Function
+-- Function to Smooth Teleport
 local function SmoothTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        local speed = 100 -- Adjust for smooth TP
         while (hrp.Position - targetPos).Magnitude > 5 and AutoFarm do
             task.wait()
-            hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos) * CFrame.new(0, 20, 0), 0.2)
+            hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos) * CFrame.new(0, 30, 0), 0.2)
         end
     end
 end
@@ -57,7 +59,7 @@ local Quests = {
     { Level = 30, Name = "Pirates", NPC = "Pirate Quest Giver", Position = Vector3.new(-1140, 5, 3852), Mob = "Pirate" },
 }
 
--- Function to Take Quest
+-- Function to Take Quest Properly
 local function TakeQuest(quest)
     if not quest then return end
     SmoothTeleport(quest.Position)
@@ -76,17 +78,17 @@ local function TakeQuest(quest)
     end
 end
 
--- Function to Attack NPCs
+-- Function to Attack NPCs with Higher Damage
 local function AttackNPCs(quest)
     if not quest then return end
+    local weapon = EquipBestWeapon()
 
     for _, enemy in pairs(workspace.Enemies:GetChildren()) do
         if enemy.Name == quest.Mob and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") then
             repeat
                 task.wait()
-                EquipWeapon("Combat") -- Change to preferred weapon
                 SmoothTeleport(enemy.HumanoidRootPart.Position)
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy)
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy, weapon, 10) -- 10x Damage Multiplier
             until enemy.Humanoid.Health <= 0 or not AutoFarm
         end
     end
