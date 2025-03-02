@@ -1,38 +1,4 @@
--- Load Rayfield UI
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
-
--- Create UI Window
-local Window = Rayfield:CreateWindow({
-    Name = "NEBULA Teleport Hub",
-    LoadingTitle = "Teleporting...",
-    LoadingSubtitle = "By NEBULA",
-    Theme = "Dark",
-})
-
--- Bypass Anti-Cheat Teleport Function
-local function BypassTeleport(destination)
-    local player = game.Players.LocalPlayer
-    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
-        Rayfield:Notify({ Title = "Error", Content = "Character not found!", Duration = 3, Type = "Error" })
-        return
-    end
-
-    local hrp = player.Character.HumanoidRootPart
-    local tweenService = game:GetService("TweenService")
-
-    -- Adjusted Speed for Bypass
-    local speed = 100
-    local timeToReach = (destination - hrp.Position).Magnitude / speed
-
-    -- Start Bypass Method (Fake Position)
-    hrp.Anchored = true
-    hrp.CFrame = CFrame.new(destination)
-
-    -- Smooth Tween for Anti-Cheat Bypass
-    local tween = tweenService:Create(hrp, TweenInfo.new(timeToReach, Enum.EasingStyle.Linear, Enum.EasingDirection.Out), {Position = destination})
-    tween:Play()
-    tween.Completed:Wait()
-
+ player.Char
     -- Wait, then Restore Movement
     task.wait(0.2)
     hrp.Anchored = false
