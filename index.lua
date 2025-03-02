@@ -48,13 +48,13 @@ end
 
 -- Quest Data
 local Quests = {
-    { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit" },
-    { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Monkey" },
-    { Level = 15, Name = "Gorillas", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Gorilla" },
-    { Level = 30, Name = "Pirates", NPC = "Pirate Quest Giver", CFrame = CFrame.new(-1140, 5, 3852), Mob = "Pirate" },
-    { Level = 40, Name = "Brutes", NPC = "Pirate Quest Giver", CFrame = CFrame.new(-1140, 5, 3852), Mob = "Brute" },
-    { Level = 60, Name = "Desert Bandits", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Bandit" },
-    { Level = 75, Name = "Desert Officers", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Officer" },
+    { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit", QuestID = 1 },
+    { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Monkey", QuestID = 2 },
+    { Level = 15, Name = "Gorillas", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Gorilla", QuestID = 3 },
+    { Level = 30, Name = "Pirates", NPC = "Pirate Quest Giver", CFrame = CFrame.new(-1140, 5, 3852), Mob = "Pirate", QuestID = 4 },
+    { Level = 40, Name = "Brutes", NPC = "Pirate Quest Giver", CFrame = CFrame.new(-1140, 5, 3852), Mob = "Brute", QuestID = 5 },
+    { Level = 60, Name = "Desert Bandits", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Bandit", QuestID = 6 },
+    { Level = 75, Name = "Desert Officers", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Officer", QuestID = 7 },
 }
 
 -- Function to Take Quest
@@ -67,7 +67,13 @@ local function TakeQuest(quest)
         [1] = quest.NPC,
         [2] = quest.Name
     }
-    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
+    local success = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
+
+    if success then
+        print("Quest taken successfully!")
+    else
+        print("Failed to take quest.")
+    end
 end
 
 -- Function to Attack NPCs
@@ -80,7 +86,7 @@ local function AttackNPCs(quest)
                 task.wait()
                 EquipWeapon("Combat") -- Change to preferred weapon
                 MoveToPosition(enemy.HumanoidRootPart.Position) -- Smoothly move to enemy
-                enemy.Humanoid.Health = 0
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy) -- Ensures kill is counted
             until enemy.Humanoid.Health <= 0 or not AutoFarm
         end
     end
