@@ -9,22 +9,31 @@ local Window = Rayfield:CreateWindow({
     Theme = "Dark",
 })
 
--- Function to Bypass Teleport Rollback
-local function TeleportTo(position)
+-- Function to Safely Teleport (Bypassing Anti-Cheat)
+local function SafeTeleport(position)
     local player = game.Players.LocalPlayer
     if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
         local hrp = player.Character.HumanoidRootPart
         local ts = game:GetService("TweenService")
-        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear) -- Smooth 1-second teleport
 
-        local goal = {CFrame = CFrame.new(position)}
-        local teleportTween = ts:Create(hrp, tweenInfo, goal)
+        -- Break the teleport into steps
+        local stepCount = 15  -- More steps = safer teleport
+        local delayBetweenSteps = 0.1  -- Small pauses between movements
+        local startPosition = hrp.Position
+        local distance = (position - startPosition) / stepCount  -- Small movement per step
 
-        teleportTween:Play()
-        
+        for i = 1, stepCount do
+            local goal = {CFrame = CFrame.new(startPosition + (distance * i))}
+            local tween = ts:Create(hrp, TweenInfo.new(delayBetweenSteps, Enum.EasingStyle.Linear), goal)
+            tween:Play()
+            task.wait(delayBetweenSteps)  -- Wait before next movement
+        end
+
+        -- Final position
+        hrp.CFrame = CFrame.new(position)
         Rayfield:Notify({
-            Title = "Teleported!",
-            Content = "Successfully moved to location.",
+            Title = "Teleport Success!",
+            Content = "You have safely teleported.",
             Duration = 3,
             Type = "Success"
         })
@@ -74,7 +83,7 @@ local function CreateTeleportButtons(tab, locations)
         tab:CreateButton({
             Name = "Teleport to " .. name,
             Callback = function()
-                TeleportTo(position)
+                SafeTeleport(position)
             end
         })
     end
@@ -107,7 +116,7 @@ MiscTab:CreateButton({
         end
 
         if closestChest then
-            TeleportTo(closestChest:GetPivot().Position)
+            SafeTeleport(closestChest:GetPivot().Position)
         else
             Rayfield:Notify({
                 Title = "Error",
