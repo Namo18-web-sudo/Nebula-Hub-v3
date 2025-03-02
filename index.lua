@@ -36,38 +36,31 @@ local function EquipWeapon(weapon)
     end
 end
 
--- Function to Increase Attack Damage
-local function IncreaseDamage(enemy)
-    if enemy and enemy:FindFirstChild("Humanoid") then
-        enemy.Humanoid.Health = enemy.Humanoid.Health - 50 -- Adjust damage value
-    end
-end
-
--- Smooth Movement Function
-local function MoveToPosition(targetPos)
+-- Smooth Teleport Function
+local function SmoothTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        hrp.CFrame = CFrame.new(targetPos) * CFrame.new(0, 20, 0) -- Stay above ground
-        task.wait(0.1)
+        local speed = 100 -- Adjust for smooth TP
+        while (hrp.Position - targetPos).Magnitude > 5 and AutoFarm do
+            task.wait()
+            hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos) * CFrame.new(0, 20, 0), 0.2)
+        end
     end
 end
 
 -- Quest Data
 local Quests = {
-    { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit", QuestID = 1 },
-    { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Monkey", QuestID = 2 },
-    { Level = 15, Name = "Gorillas", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Gorilla", QuestID = 3 },
-    { Level = 30, Name = "Pirates", NPC = "Pirate Quest Giver", CFrame = CFrame.new(-1140, 5, 3852), Mob = "Pirate", QuestID = 4 },
-    { Level = 40, Name = "Brutes", NPC = "Pirate Quest Giver", CFrame = CFrame.new(-1140, 5, 3852), Mob = "Brute", QuestID = 5 },
-    { Level = 60, Name = "Desert Bandits", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Bandit", QuestID = 6 },
-    { Level = 75, Name = "Desert Officers", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Officer", QuestID = 7 },
+    { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", Position = Vector3.new(-1139, 16, 3790), Mob = "Bandit" },
+    { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", Position = Vector3.new(-1600, 36, 152), Mob = "Monkey" },
+    { Level = 15, Name = "Gorillas", NPC = "Jungle Quest Giver", Position = Vector3.new(-1600, 36, 152), Mob = "Gorilla" },
+    { Level = 30, Name = "Pirates", NPC = "Pirate Quest Giver", Position = Vector3.new(-1140, 5, 3852), Mob = "Pirate" },
 }
 
 -- Function to Take Quest
 local function TakeQuest(quest)
     if not quest then return end
-    MoveToPosition(quest.CFrame.Position) -- Smooth teleport to quest giver
+    SmoothTeleport(quest.Position)
     task.wait(1)
 
     local args = {
@@ -92,9 +85,8 @@ local function AttackNPCs(quest)
             repeat
                 task.wait()
                 EquipWeapon("Combat") -- Change to preferred weapon
-                MoveToPosition(enemy.HumanoidRootPart.Position) -- Smoothly move to enemy
-                IncreaseDamage(enemy) -- Deals more damage
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy) -- Ensures kill is counted
+                SmoothTeleport(enemy.HumanoidRootPart.Position)
+                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy)
             until enemy.Humanoid.Health <= 0 or not AutoFarm
         end
     end
