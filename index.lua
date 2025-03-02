@@ -1,34 +1,52 @@
-_G.AutoFarm = true -- Toggle AutoFarm ON/OFF
+-- Load Rayfield UI Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
-local player = game.Players.LocalPlayer
-local RunService = game:GetService("RunService")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
+-- Create Main Window
+local Window = Rayfield:CreateWindow({
+    Name = "NEBULA AUTOFARM HUB",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by NEBULA",
+    Theme = "Default",
+    KeySystem = false
+})
 
--- Anti AFK
-player.Idled:Connect(function()
-    game:GetService("VirtualUser"):CaptureController()
-    game:GetService("VirtualUser"):ClickButton2(Vector2.new())
-end)
+-- Create AutoFarm Tab
+local FarmTab = Window:CreateTab("AutoFarm", 4483362458)
+
+-- AutoFarm Toggle
+local AutoFarm = false
+local Toggle = FarmTab:CreateToggle({
+    Name = "AutoFarm",
+    CurrentValue = false,
+    Flag = "AutoFarm",
+    Callback = function(value)
+        AutoFarm = value
+        if AutoFarm then
+            StartAutoFarm()
+        end
+    end
+})
 
 -- Function to Equip Weapon
 local function EquipWeapon(weapon)
-    for _, tool in pairs(player.Backpack:GetChildren()) do
+    for _, tool in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
         if tool:IsA("Tool") and tool.Name == weapon then
-            player.Character.Humanoid:EquipTool(tool)
+            game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
         end
     end
 end
 
 -- Smooth Movement Function
 local function MoveToPosition(targetPos)
-    local char = player.Character
+    local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos), 0.1) -- Smooth movement
+        hrp.CFrame = CFrame.new(targetPos) * CFrame.new(0, 15, 0) -- Stay above ground
+        task.wait(0.1)
     end
 end
 
--- List of Quests for First, Second, and Third Sea
+-- Quest Data
 local Quests = {
     { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit" },
     { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Monkey" },
@@ -49,10 +67,10 @@ local function TakeQuest(quest)
         [1] = quest.NPC,
         [2] = quest.Name
     }
-    ReplicatedStorage.Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
+    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
 end
 
--- Function to Find and Attack NPCs
+-- Function to Attack NPCs
 local function AttackNPCs(quest)
     if not quest then return end
 
@@ -61,18 +79,18 @@ local function AttackNPCs(quest)
             repeat
                 task.wait()
                 EquipWeapon("Combat") -- Change to preferred weapon
-                MoveToPosition(enemy.HumanoidRootPart.Position + Vector3.new(0, 15, 0)) -- Fly above NPC
+                MoveToPosition(enemy.HumanoidRootPart.Position) -- Smoothly move to enemy
                 enemy.Humanoid.Health = 0
-            until enemy.Humanoid.Health <= 0 or not _G.AutoFarm
+            until enemy.Humanoid.Health <= 0 or not AutoFarm
         end
     end
 end
 
 -- AutoFarm Function
-local function AutoFarm()
-    while _G.AutoFarm do
+function StartAutoFarm()
+    while AutoFarm do
         task.wait(0.1)
-        local level = player.Data.Level.Value
+        local level = game.Players.LocalPlayer.Data.Level.Value
         local bestQuest
 
         -- Find the best quest for the player's level
@@ -89,6 +107,3 @@ local function AutoFarm()
         end
     end
 end
-
--- Run AutoFarm
-AutoFarm()
