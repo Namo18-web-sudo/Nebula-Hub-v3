@@ -3,13 +3,13 @@ local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
 
 -- Create UI Window
 local Window = Rayfield:CreateWindow({
-    Name = "Blox Fruits Teleport Hub",
+    Name = "NEBULA Teleport Hub",
     LoadingTitle = "Teleporting...",
-    LoadingSubtitle = "By Aura",
+    LoadingSubtitle = "By NEBULA",
     Theme = "Dark",
 })
 
--- Function for Smooth & Safe Teleport (Redz Hub Speed)
+-- Function for Safe & Smooth Teleport
 local function SafeTeleport(destination)
     local player = game.Players.LocalPlayer
     if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
@@ -25,8 +25,8 @@ local function SafeTeleport(destination)
     local hrp = player.Character.HumanoidRootPart
     local TweenService = game:GetService("TweenService")
 
-    -- Redz Hub teleport speed (optimized)
-    local speed = 100  -- Adjusted for smooth bypass
+    -- Adjusted Speed to 100 (Slower for safety)
+    local speed = 100
 
     -- Create tween for smooth movement
     local tweenInfo = TweenInfo.new(
@@ -87,10 +87,18 @@ local ThirdSea = {
     ["Sea of Treats"] = Vector3.new(-190, 50, -12000),
 }
 
+-- Sea Switch Locations
+local SeaSwitch = {
+    ["First Sea"] = Vector3.new(-1836, 10, 1714), -- First Sea Teleport Location
+    ["Second Sea"] = Vector3.new(-11, 10, 2799), -- Second Sea Teleport Location
+    ["Third Sea"] = Vector3.new(5545, 606, -3222), -- Third Sea Teleport Location
+}
+
 -- Create Tabs
 local FirstSeaTab = Window:CreateTab("First Sea", 4483362458)
 local SecondSeaTab = Window:CreateTab("Second Sea", 4483362458)
 local ThirdSeaTab = Window:CreateTab("Third Sea", 4483362458)
+local MiscTab = Window:CreateTab("Misc", 4483362458)
 
 -- Function to Create Teleport Buttons
 local function CreateTeleportButtons(tab, locations)
@@ -109,10 +117,50 @@ CreateTeleportButtons(FirstSeaTab, FirstSea)
 CreateTeleportButtons(SecondSeaTab, SecondSea)
 CreateTeleportButtons(ThirdSeaTab, ThirdSea)
 
--- Misc Tab for Extra Features
-local MiscTab = Window:CreateTab("Misc", 4483362458)
+-- Add Teleport Between Seas
+FirstSeaTab:CreateButton({
+    Name = "Teleport to Second Sea",
+    Callback = function()
+        SafeTeleport(SeaSwitch["Second Sea"])
+    end
+})
 
--- Teleport to Nearest Chest
+FirstSeaTab:CreateButton({
+    Name = "Teleport to Third Sea",
+    Callback = function()
+        SafeTeleport(SeaSwitch["Third Sea"])
+    end
+})
+
+SecondSeaTab:CreateButton({
+    Name = "Teleport to First Sea",
+    Callback = function()
+        SafeTeleport(SeaSwitch["First Sea"])
+    end
+})
+
+SecondSeaTab:CreateButton({
+    Name = "Teleport to Third Sea",
+    Callback = function()
+        SafeTeleport(SeaSwitch["Third Sea"])
+    end
+})
+
+ThirdSeaTab:CreateButton({
+    Name = "Teleport to First Sea",
+    Callback = function()
+        SafeTeleport(SeaSwitch["First Sea"])
+    end
+})
+
+ThirdSeaTab:CreateButton({
+    Name = "Teleport to Second Sea",
+    Callback = function()
+        SafeTeleport(SeaSwitch["Second Sea"])
+    end
+})
+
+-- Misc Features
 MiscTab:CreateButton({
     Name = "Teleport to Nearest Chest",
     Callback = function()
