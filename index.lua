@@ -29,6 +29,13 @@ local function EquipWeapon(weapon)
     end
 end
 
+-- Function to Fly Above NPCs
+local function FlyAbove(target)
+    if target and target:FindFirstChild("HumanoidRootPart") then
+        player.Character.HumanoidRootPart.CFrame = target.HumanoidRootPart.CFrame + Vector3.new(0, 20, 0)
+    end
+end
+
 -- First Sea Quests & NPCs
 local FirstSeaQuests = {
     { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit" },
@@ -40,7 +47,7 @@ local FirstSeaQuests = {
     { Level = 75, Name = "Desert Officers", NPC = "Desert Quest Giver", CFrame = CFrame.new(920, 7, 4475), Mob = "Desert Officer" },
 }
 
--- Function to Get Quest
+-- Function to Take Quest
 local function TakeQuest(quest)
     if not quest then return end
     player.Character.HumanoidRootPart.CFrame = quest.CFrame
@@ -62,7 +69,7 @@ local function AttackNPCs(quest)
             repeat
                 task.wait()
                 EquipWeapon("Combat") -- Change to preferred weapon
-                player.Character.HumanoidRootPart.CFrame = enemy.HumanoidRootPart.CFrame + Vector3.new(0, 15, 0)
+                FlyAbove(enemy) -- Fly above the enemy
                 enemy.Humanoid.Health = 0
             until enemy.Humanoid.Health <= 0 or not _G.AutoFarm
         end
