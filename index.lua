@@ -36,12 +36,19 @@ local function EquipWeapon(weapon)
     end
 end
 
+-- Function to Increase Attack Damage
+local function IncreaseDamage(enemy)
+    if enemy and enemy:FindFirstChild("Humanoid") then
+        enemy.Humanoid.Health = enemy.Humanoid.Health - 50 -- Adjust damage value
+    end
+end
+
 -- Smooth Movement Function
 local function MoveToPosition(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        hrp.CFrame = CFrame.new(targetPos) * CFrame.new(0, 15, 0) -- Stay above ground
+        hrp.CFrame = CFrame.new(targetPos) * CFrame.new(0, 20, 0) -- Stay above ground
         task.wait(0.1)
     end
 end
@@ -86,6 +93,7 @@ local function AttackNPCs(quest)
                 task.wait()
                 EquipWeapon("Combat") -- Change to preferred weapon
                 MoveToPosition(enemy.HumanoidRootPart.Position) -- Smoothly move to enemy
+                IncreaseDamage(enemy) -- Deals more damage
                 game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy) -- Ensures kill is counted
             until enemy.Humanoid.Health <= 0 or not AutoFarm
         end
