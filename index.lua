@@ -9,7 +9,7 @@ local Window = Rayfield:CreateWindow({
     Theme = "Dark",
 })
 
--- Function for Smooth & Safe Teleport (Bypasses Anti-Cheat)
+-- Function for Smooth & Safe Teleport (Redz Hub Speed)
 local function SafeTeleport(destination)
     local player = game.Players.LocalPlayer
     if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then
@@ -25,28 +25,31 @@ local function SafeTeleport(destination)
     local hrp = player.Character.HumanoidRootPart
     local TweenService = game:GetService("TweenService")
 
-    -- Create tween to move smoothly
+    -- Redz Hub teleport speed (optimized)
+    local speed = 350  -- Adjusted for smooth bypass
+
+    -- Create tween for smooth movement
     local tweenInfo = TweenInfo.new(
-        (destination - hrp.Position).Magnitude / 250, -- Time based on distance
+        (destination - hrp.Position).Magnitude / speed, -- Time based on distance
         Enum.EasingStyle.Linear,
         Enum.EasingDirection.Out
     )
 
     local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(destination)})
 
-    -- Anchor to prevent falling & anti-cheat kick
+    -- Anchor to prevent anti-cheat rubberbanding
     hrp.Anchored = true
     tween:Play()
     tween.Completed:Wait()
 
-    -- Wait a bit & then unanchor
-    task.wait(0.2)
+    -- Wait a bit & then unanchor to restore movement
+    task.wait(0.1)
     hrp.Anchored = false
 
     -- Notify player
     Rayfield:Notify({
         Title = "Teleport Complete!",
-        Content = "You have arrived safely.",
+        Content = "Arrived successfully!",
         Duration = 3,
         Type = "Success"
     })
