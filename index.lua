@@ -26,7 +26,7 @@ local function SafeTeleport(destination)
     local TweenService = game:GetService("TweenService")
 
     -- Redz Hub teleport speed (optimized)
-    local speed = 200  -- Adjusted for smooth bypass
+    local speed = 100  -- Adjusted for smooth bypass
 
     -- Create tween for smooth movement
     local tweenInfo = TweenInfo.new(
