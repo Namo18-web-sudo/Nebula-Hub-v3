@@ -1,18 +1,8 @@
--- Load Rayfield UI
-local Rayfield = loadstring(game:HttpGet("https://sirius.menu/rayfield"))()
+_G.AutoFarm = true -- Toggle AutoFarm ON/OFF
 
--- Create UI Window
-local Window = Rayfield:CreateWindow({
-    Name = "NEBULA AutoFarm Hub",
-    LoadingTitle = "Loading AutoFarm...",
-    LoadingSubtitle = "By NEBULA",
-    Theme = "Dark",
-})
-
--- Variables
 local player = game.Players.LocalPlayer
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 -- Anti AFK
 player.Idled:Connect(function()
@@ -36,8 +26,8 @@ local function FlyAbove(target)
     end
 end
 
--- First Sea Quests & NPCs
-local FirstSeaQuests = {
+-- List of Quests for First, Second, and Third Sea
+local Quests = {
     { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", CFrame = CFrame.new(-1139, 16, 3790), Mob = "Bandit" },
     { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Monkey" },
     { Level = 15, Name = "Gorillas", NPC = "Jungle Quest Giver", CFrame = CFrame.new(-1600, 36, 152), Mob = "Gorilla" },
@@ -84,7 +74,7 @@ local function AutoFarm()
         local bestQuest
 
         -- Find the best quest for the player's level
-        for _, quest in ipairs(FirstSeaQuests) do
+        for _, quest in ipairs(Quests) do
             if level >= quest.Level then
                 bestQuest = quest
             end
@@ -98,18 +88,5 @@ local function AutoFarm()
     end
 end
 
--- Create UI Tab
-local FarmTab = Window:CreateTab("Auto Farm", 4483362458)
-
--- AutoFarm Toggle Button
-FarmTab:CreateToggle({
-    Name = "AutoFarm Level (First Sea)",
-    CurrentValue = false,
-    Flag = "AutoFarm",
-    Callback = function(Value)
-        _G.AutoFarm = Value
-        if Value then
-            AutoFarm()
-        end
-    end,
-})
+-- Run AutoFarm
+AutoFarm()
