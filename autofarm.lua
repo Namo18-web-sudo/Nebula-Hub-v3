@@ -1,7 +1,5 @@
--- Load Rayfield UI Library
+-- Load UI
 local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
-
--- Main Window
 local Window = Rayfield:CreateWindow({
     Name = "NEBULA AUTO FARM",
     LoadingTitle = "Loading...",
@@ -10,25 +8,22 @@ local Window = Rayfield:CreateWindow({
     KeySystem = false
 })
 
--- Create AutoFarm Tab
-local AutoFarmTab = Window:CreateTab("Auto Farm", 4483362458)
-
 -- Services
+local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local char = player.Character or player.CharacterAdded:Wait()
 
--- Function to Tween Teleport
+-- Tween Teleport Function
 local function TweenTeleport(targetPos)
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
         local tweenInfo = TweenInfo.new((hrp.Position - targetPos).Magnitude / 300, Enum.EasingStyle.Linear)
         local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
-        
-        -- NoClip (Walk through walls)
+
+        -- NoClip to avoid walls
         local function EnableNoclip()
             for _, v in pairs(char:GetDescendants()) do
                 if v:IsA("BasePart") then
@@ -45,38 +40,26 @@ local function TweenTeleport(targetPos)
             end
         end
 
-        -- Fix Movement Stuck
-        local function ResetCharacter()
-            if char:FindFirstChildOfClass("Humanoid") then
-                local humanoid = char:FindFirstChildOfClass("Humanoid")
-                humanoid:Move(Vector3.new(0, 0, 0))
-                humanoid.Jump = true
-            end
-        end
-
-        -- Start Teleport
+        -- Start teleporting
         EnableNoclip()
         tween:Play()
 
-        -- Restore after teleport
+        -- Stop noclip after teleport
         tween.Completed:Connect(function()
             wait(0.2)
             DisableNoclip()
-            ResetCharacter()
-            print("Teleport complete!")
         end)
     end
 end
 
--- Quest Locations & NPCs by Level
+-- Quest & NPC Data
 local QuestData = {
     {Level = 1, QuestNPC = "Bandit Quest Giver", QuestName = "Bandits", MobName = "Bandit", QuestPos = Vector3.new(1059, 16, 1547), MobPos = Vector3.new(1147, 17, 1639)},
     {Level = 10, QuestNPC = "Jungle Quest Giver", QuestName = "Monkeys", MobName = "Monkey", QuestPos = Vector3.new(-1601, 37, 152), MobPos = Vector3.new(-1442, 40, 68)},
     {Level = 30, QuestNPC = "Pirate Quest Giver", QuestName = "Pirates", MobName = "Pirate", QuestPos = Vector3.new(-1140, 5, 3852), MobPos = Vector3.new(-1211, 7, 3912)}
-    -- Add more based on level
 }
 
--- Get the best quest for player level
+-- Get the best quest
 local function GetBestQuest()
     local playerLevel = player.Data.Level.Value
     local bestQuest = QuestData[1]
@@ -90,27 +73,26 @@ local function GetBestQuest()
     return bestQuest
 end
 
--- Accept Quest
+-- Take Quest
 local function TakeQuest()
     local quest = GetBestQuest()
     TweenTeleport(quest.QuestPos)
     wait(1)
 
-    -- Interact with Quest NPC
+    -- Interact with NPC
     local args = {
         [1] = quest.QuestNPC,
         [2] = quest.QuestName
     }
     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
-    print("Quest Taken: " .. quest.QuestName)
 end
 
--- Gather NPCs
+-- Gather & Levitate Above NPCs
 local function GatherMobs()
     local quest = GetBestQuest()
-    TweenTeleport(quest.MobPos + Vector3.new(0, 15, 0)) -- Stay above NPCs
+    TweenTeleport(quest.MobPos + Vector3.new(0, 20, 0)) -- Levitate above mobs
 
-    -- Wait for Mobs to load
+    -- Wait for mobs to load
     wait(1)
 
     -- Group NPCs together
@@ -119,10 +101,9 @@ local function GatherMobs()
             v.HumanoidRootPart.CFrame = char.HumanoidRootPart.CFrame * CFrame.new(math.random(-5, 5), 0, math.random(-5, 5))
         end
     end
-    print("Grouped NPCs")
 end
 
--- Attack Mobs
+-- Auto-Kill NPCs
 local function AutoKill()
     local quest = GetBestQuest()
     while true do
@@ -137,23 +118,23 @@ local function AutoKill()
 
         -- Check if quest is done
         if player.PlayerGui.Main.Quest.Visible == false then
-            print("Quest Completed!")
             return
         end
     end
 end
 
--- AutoFarm Main Loop
+-- AutoFarm Loop
 local function AutoFarm()
     while true do
         TakeQuest()
         GatherMobs()
         AutoKill()
-        wait(1) -- Prevent crashes
+        wait(1)
     end
 end
 
--- UI Button to Start Auto Farm
+-- UI Button
+local AutoFarmTab = Window:CreateTab("Auto Farm", 4483362458)
 AutoFarmTab:CreateButton({
     Name = "Start Auto Farm",
     Callback = function()
