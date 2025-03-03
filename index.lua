@@ -24,7 +24,7 @@ local function SmoothTeleport(targetPos)
 
         -- Make sure it's fast and ultra smooth
         local distance = (hrp.Position - targetPos).Magnitude
-        local tweenTime = math.clamp(distance / 300, 0.5, 2) -- Smooth but fast
+        local tweenTime = math.clamp(distance / 1, 0.5, 2) -- Smooth but fast
 
         local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
         local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
