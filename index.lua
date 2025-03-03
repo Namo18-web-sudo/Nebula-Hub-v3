@@ -13,26 +13,44 @@ local Window = Rayfield:CreateWindow({
 -- Create Teleport Tab
 local TeleportTab = Window:CreateTab("Teleport", 4483362458)
 
--- Function for Safe Teleport (Bypasses Anti-Cheat)
-local function SafeTeleport(targetPos)
+-- TweenService for Smooth Teleport
+local TweenService = game:GetService("TweenService")
+local function TweenTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        local distance = (hrp.Position - targetPos).Magnitude
         
-        -- Gradual teleport for safety
-        while distance > 5 do
-            hrp.CFrame = CFrame.new(targetPos)
-            wait(0.1) -- Small delay to prevent rubberbanding
-            distance = (hrp.Position - targetPos).Magnitude
+        -- Create a Tween to move the player smoothly
+        local tweenInfo = TweenInfo.new((hrp.Position - targetPos).Magnitude / 150, Enum.EasingStyle.Linear)
+        local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
+        
+        -- Enable Noclip temporarily
+        local function Noclip()
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") and v.CanCollide then
+                    v.CanCollide = false
+                end
+            end
         end
         
-        -- **Teleport Complete**
-        print("Teleport complete!")
+        -- Start Tweening
+        Noclip()
+        tween:Play()
+        
+        -- Stop Noclip after teleport
+        tween.Completed:Connect(function()
+            wait(0.2)
+            for _, v in pairs(char:GetDescendants()) do
+                if v:IsA("BasePart") then
+                    v.CanCollide = true
+                end
+            end
+            print("Teleport complete!")
+        end)
     end
 end
 
--- Teleport Locations (First, Second, Third Sea)
+-- Teleport Locations
 local Locations = {
     FirstSea = {
         {"Starter Island", Vector3.new(-1149, 19, 3827)},
@@ -64,7 +82,7 @@ local function AddTeleportButtons(tab, locations)
         tab:CreateButton({
             Name = location[1],
             Callback = function()
-                SafeTeleport(location[2])
+                TweenTeleport(location[2])
             end
         })
     end
