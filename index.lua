@@ -4,8 +4,8 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 -- Create Main Window
 local Window = Rayfield:CreateWindow({
     Name = "NEBULA TELEPORT HUB",
-    LoadingTitle = "Loading...",
-    LoadingSubtitle = "by NEBULA",
+    LoadingTitle = "Detecting Sea...",
+    LoadingSubtitle = "Please wait",
     Theme = "Default",
     KeySystem = false
 })
@@ -13,46 +13,65 @@ local Window = Rayfield:CreateWindow({
 -- Create Teleport Tab
 local TeleportTab = Window:CreateTab("Teleport", 4483362458)
 
--- TweenService for Smooth Teleport
+-- TweenService for Smooth & Fast Teleportation
 local TweenService = game:GetService("TweenService")
-local function TweenTeleport(targetPos)
+
+-- Function for Ultra Smooth & Fast Teleport
+local function SmoothTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        
-        -- Create a Tween to move the player smoothly
-        local tweenInfo = TweenInfo.new((hrp.Position - targetPos).Magnitude / 150, Enum.EasingStyle.Linear)
+
+        -- Make sure it's fast and ultra smooth
+        local distance = (hrp.Position - targetPos).Magnitude
+        local tweenTime = math.clamp(distance / 300, 0.5, 2) -- Smooth but fast
+
+        local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
         local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
-        
-        -- Enable Noclip temporarily
-        local function Noclip()
+
+        -- Enable NoClip for seamless teleport
+        local function EnableNoclip()
             for _, v in pairs(char:GetDescendants()) do
-                if v:IsA("BasePart") and v.CanCollide then
+                if v:IsA("BasePart") then
                     v.CanCollide = false
                 end
             end
         end
-        
-        -- Start Tweening
-        Noclip()
-        tween:Play()
-        
-        -- Stop Noclip after teleport
-        tween.Completed:Connect(function()
-            wait(0.2)
+
+        local function DisableNoclip()
             for _, v in pairs(char:GetDescendants()) do
                 if v:IsA("BasePart") then
                     v.CanCollide = true
                 end
             end
-            print("Teleport complete!")
+        end
+
+        -- Prevent character freezing
+        local function ResetCharacter()
+            if char:FindFirstChildOfClass("Humanoid") then
+                local humanoid = char:FindFirstChildOfClass("Humanoid")
+                humanoid:Move(Vector3.new(0, 0, 0))
+                humanoid.Jump = true
+            end
+        end
+
+        -- Start teleport
+        EnableNoclip()
+        tween:Play()
+
+        -- Ensure proper rendering and reset character
+        tween.Completed:Connect(function()
+            wait(0.3)
+            DisableNoclip()
+            ResetCharacter()
+            print("Smooth Teleport Complete!")
         end)
     end
 end
 
--- Teleport Locations
+-- Define Teleport Locations for Each Sea
 local Locations = {
-    FirstSea = {
+    ["First Sea"] = {
         {"Starter Island", Vector3.new(-1149, 19, 3827)},
         {"Jungle", Vector3.new(-1601, 37, 152)},
         {"Pirate Village", Vector3.new(-1140, 5, 3852)},
@@ -60,14 +79,14 @@ local Locations = {
         {"Frozen Village", Vector3.new(1183, 27, -1213)},
         {"Marine Fortress", Vector3.new(-4841, 20, 4309)}
     },
-    SecondSea = {
+    ["Second Sea"] = {
         {"Dock", Vector3.new(81, 19, 2832)},
         {"Kingdom of Rose", Vector3.new(-392, 123, 605)},
         {"Usoap's Island", Vector3.new(-5242, 8, 4045)},
         {"Ice Castle", Vector3.new(5670, 28, -6520)},
         {"Hot and Cold", Vector3.new(-6000, 15, -5000)}
     },
-    ThirdSea = {
+    ["Third Sea"] = {
         {"Port Town", Vector3.new(-290, 45, 5450)},
         {"Hydra Island", Vector3.new(5200, 635, 3450)},
         {"Great Tree", Vector3.new(2300, 25, -6500)},
@@ -76,24 +95,38 @@ local Locations = {
     }
 }
 
--- Function to Add Teleport Buttons
-local function AddTeleportButtons(tab, locations)
-    for _, location in ipairs(locations) do
-        tab:CreateButton({
+-- Auto Detect Which Sea the Player Is In
+local function DetectSea()
+    local hrp = game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+    if not hrp then return "First Sea" end -- Default to First Sea
+
+    local pos = hrp.Position
+    if pos.X >= -6000 and pos.X <= 6000 and pos.Z >= -7000 and pos.Z <= 7000 then
+        return "First Sea"
+    elseif pos.X >= -10000 and pos.X <= 10000 and pos.Z >= -12000 and pos.Z <= 12000 then
+        return "Second Sea"
+    else
+        return "Third Sea"
+    end
+end
+
+-- Add Buttons Based on Detected Sea
+local function LoadTeleportButtons()
+    local sea = DetectSea()
+    TeleportTab:CreateSection(sea .. " Islands")
+
+    for _, location in ipairs(Locations[sea]) do
+        TeleportTab:CreateButton({
             Name = location[1],
             Callback = function()
-                TweenTeleport(location[2])
+                SmoothTeleport(location[2])
             end
         })
     end
 end
 
--- Add Teleport Sections
-TeleportTab:CreateSection("First Sea")
-AddTeleportButtons(TeleportTab, Locations.FirstSea)
+-- Load Buttons for Current Sea
+LoadTeleportButtons()
 
-TeleportTab:CreateSection("Second Sea")
-AddTeleportButtons(TeleportTab, Locations.SecondSea)
-
-TeleportTab:CreateSection("Third Sea")
-AddTeleportButtons(TeleportTab, Locations.ThirdSea)
+-- Show UI
+Window:Show()
