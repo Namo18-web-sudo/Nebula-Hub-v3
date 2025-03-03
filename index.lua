@@ -3,115 +3,74 @@ local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
 
 -- Create Main Window
 local Window = Rayfield:CreateWindow({
-    Name = "NEBULA AUTOFARM HUB",
+    Name = "NEBULA TELEPORT HUB",
     LoadingTitle = "Loading...",
     LoadingSubtitle = "by NEBULA",
     Theme = "Default",
     KeySystem = false
 })
 
--- Create AutoFarm Tab
-local FarmTab = Window:CreateTab("AutoFarm", 4483362458)
-
--- AutoFarm Toggle
-local AutoFarm = false
-local Toggle = FarmTab:CreateToggle({
-    Name = "AutoFarm",
-    CurrentValue = false,
-    Flag = "AutoFarm",
-    Callback = function(value)
-        AutoFarm = value
-        if AutoFarm then
-            StartAutoFarm()
-        end
-    end
-})
-
--- Function to Equip Best Weapon
-local function EquipBestWeapon()
-    local weapons = {"Dark Blade", "Saber", "Dragon Talon", "Sharkman Karate", "Superhuman"}
-    for _, tool in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
-        if tool:IsA("Tool") and table.find(weapons, tool.Name) then
-            game.Players.LocalPlayer.Character.Humanoid:EquipTool(tool)
-            return tool.Name
-        end
-    end
-    return "Combat"
-end
+-- Create Teleport Tab
+local TeleportTab = Window:CreateTab("Teleport", 4483362458)
 
 -- Function to Smooth Teleport
 local function SmoothTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        while (hrp.Position - targetPos).Magnitude > 5 and AutoFarm do
+        while (hrp.Position - targetPos).Magnitude > 5 do
             task.wait()
-            hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos) * CFrame.new(0, 30, 0), 0.2)
+            hrp.CFrame = hrp.CFrame:Lerp(CFrame.new(targetPos), 0.2)
         end
     end
 end
 
--- Quest Data
-local Quests = {
-    { Level = 0, Name = "Bandits", NPC = "Bandit Quest Giver", Position = Vector3.new(-1139, 16, 3790), Mob = "Bandit" },
-    { Level = 10, Name = "Monkeys", NPC = "Jungle Quest Giver", Position = Vector3.new(-1600, 36, 152), Mob = "Monkey" },
-    { Level = 15, Name = "Gorillas", NPC = "Jungle Quest Giver", Position = Vector3.new(-1600, 36, 152), Mob = "Gorilla" },
-    { Level = 30, Name = "Pirates", NPC = "Pirate Quest Giver", Position = Vector3.new(-1140, 5, 3852), Mob = "Pirate" },
+-- First Sea Locations
+local FirstSea = {
+    {"Starter Island", Vector3.new(-1149, 19, 3827)},
+    {"Jungle", Vector3.new(-1601, 37, 152)},
+    {"Pirate Village", Vector3.new(-1140, 5, 3852)},
+    {"Desert", Vector3.new(978, 7, 4372)},
+    {"Frozen Village", Vector3.new(1183, 27, -1213)},
+    {"Marine Fortress", Vector3.new(-4841, 20, 4309)}
 }
 
--- Function to Take Quest Properly
-local function TakeQuest(quest)
-    if not quest then return end
-    SmoothTeleport(quest.Position)
-    task.wait(1)
+-- Second Sea Locations
+local SecondSea = {
+    {"Dock", Vector3.new(81, 19, 2832)},
+    {"Kingdom of Rose", Vector3.new(-392, 123, 605)},
+    {"Usoap's Island", Vector3.new(-5242, 8, 4045)},
+    {"Ice Castle", Vector3.new(5670, 28, -6520)},
+    {"Hot and Cold", Vector3.new(-6000, 15, -5000)}
+}
 
-    local args = {
-        [1] = quest.NPC,
-        [2] = quest.Name
-    }
-    local success = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", unpack(args))
+-- Third Sea Locations
+local ThirdSea = {
+    {"Port Town", Vector3.new(-290, 45, 5450)},
+    {"Hydra Island", Vector3.new(5200, 635, 3450)},
+    {"Great Tree", Vector3.new(2300, 25, -6500)},
+    {"Floating Turtle", Vector3.new(-10000, 400, -9000)},
+    {"Castle on the Sea", Vector3.new(-5000, 300, -5000)}
+}
 
-    if success then
-        print("Quest taken successfully!")
-    else
-        print("Failed to take quest.")
-    end
-end
-
--- Function to Attack NPCs with Higher Damage
-local function AttackNPCs(quest)
-    if not quest then return end
-    local weapon = EquipBestWeapon()
-
-    for _, enemy in pairs(workspace.Enemies:GetChildren()) do
-        if enemy.Name == quest.Mob and enemy:FindFirstChild("HumanoidRootPart") and enemy:FindFirstChild("Humanoid") then
-            repeat
-                task.wait()
-                SmoothTeleport(enemy.HumanoidRootPart.Position)
-                game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("HitNPC", enemy, weapon, 10) -- 10x Damage Multiplier
-            until enemy.Humanoid.Health <= 0 or not AutoFarm
-        end
-    end
-end
-
--- AutoFarm Function
-function StartAutoFarm()
-    while AutoFarm do
-        task.wait(0.1)
-        local level = game.Players.LocalPlayer.Data.Level.Value
-        local bestQuest
-
-        -- Find the best quest for the player's level
-        for _, quest in ipairs(Quests) do
-            if level >= quest.Level then
-                bestQuest = quest
+-- Function to Add Teleport Buttons
+local function AddTeleportButtons(tab, locations)
+    for _, location in ipairs(locations) do
+        tab:CreateButton({
+            Name = location[1],
+            Callback = function()
+                SmoothTeleport(location[2])
             end
-        end
-
-        if bestQuest then
-            TakeQuest(bestQuest)
-            task.wait(1)
-            AttackNPCs(bestQuest)
-        end
+        })
     end
 end
+
+-- Add Teleport Sections
+local FirstSeaTab = TeleportTab:CreateSection("First Sea")
+AddTeleportButtons(TeleportTab, FirstSea)
+
+local SecondSeaTab = TeleportTab:CreateSection("Second Sea")
+AddTeleportButtons(TeleportTab, SecondSea)
+
+local ThirdSeaTab = TeleportTab:CreateSection("Third Sea")
+AddTeleportButtons(TeleportTab, ThirdSea)
