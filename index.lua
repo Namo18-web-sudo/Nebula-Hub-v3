@@ -1,3 +1,19 @@
+-- Load Rayfield UI Library
+local Rayfield = loadstring(game:HttpGet('https://sirius.menu/rayfield'))()
+
+-- Create Main Window
+local Window = Rayfield:CreateWindow({
+    Name = "NEBULA TELEPORT HUB",
+    LoadingTitle = "Loading...",
+    LoadingSubtitle = "by NEBULA",
+    Theme = "Default",
+    KeySystem = false
+})
+
+-- Create Teleport Tab
+local TeleportTab = Window:CreateTab("Teleport", 4483362458)
+
+-- TweenService for Smooth Teleport
 local TweenService = game:GetService("TweenService")
 
 local function TweenTeleport(targetPos)
@@ -5,11 +21,11 @@ local function TweenTeleport(targetPos)
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
 
-        -- Create a Tween to move the player smoothly
+        -- Smooth teleport
         local tweenInfo = TweenInfo.new((hrp.Position - targetPos).Magnitude / 150, Enum.EasingStyle.Linear)
         local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
 
-        -- Temporary Noclip to avoid getting stuck
+        -- Temporary NoClip
         local function EnableNoclip()
             for _, v in pairs(char:GetDescendants()) do
                 if v:IsA("BasePart") then
@@ -26,25 +42,48 @@ local function TweenTeleport(targetPos)
             end
         end
 
-        -- Prevent movement freeze
+        -- Prevent being stuck
         local function ResetCharacter()
             if char:FindFirstChildOfClass("Humanoid") then
                 local humanoid = char:FindFirstChildOfClass("Humanoid")
-                humanoid:Move(Vector3.new(0, 0, 0)) -- Forces an update
-                humanoid.Jump = true -- Jumps to unfreeze
+                humanoid:Move(Vector3.new(0, 0, 0))
+                humanoid.Jump = true
             end
         end
 
-        -- Start Tweening
+        -- Start teleportation
         EnableNoclip()
         tween:Play()
 
-        -- Ensure the map loads properly before restoring collision
+        -- Fix rendering issues
         tween.Completed:Connect(function()
-            wait(0.5) -- Small delay to allow rendering
+            wait(0.5)
             DisableNoclip()
-            ResetCharacter() -- Fix stuck movement
+            ResetCharacter()
             print("Teleport complete!")
         end)
     end
 end
+
+-- Teleport Locations
+local Locations = {
+    {"Starter Island", Vector3.new(-1149, 19, 3827)},
+    {"Jungle", Vector3.new(-1601, 37, 152)},
+    {"Pirate Village", Vector3.new(-1140, 5, 3852)},
+    {"Desert", Vector3.new(978, 7, 4372)},
+    {"Frozen Village", Vector3.new(1183, 27, -1213)},
+    {"Marine Fortress", Vector3.new(-4841, 20, 4309)}
+}
+
+-- Add Teleport Buttons
+for _, location in ipairs(Locations) do
+    TeleportTab:CreateButton({
+        Name = location[1],
+        Callback = function()
+            TweenTeleport(location[2])
+        end
+    })
+end
+
+-- Show UI
+Window:Show()
