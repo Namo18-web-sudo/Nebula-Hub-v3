@@ -13,23 +13,23 @@ local Window = Rayfield:CreateWindow({
 -- Create Teleport Tab
 local TeleportTab = Window:CreateTab("Teleport", 4483362458)
 
--- TweenService for Smooth & Fast Teleportation
+-- TweenService for Smooth & Balanced Teleportation
 local TweenService = game:GetService("TweenService")
 
--- Function for Ultra Smooth & Fast Teleport
+-- Function for Smooth Teleport (Balanced like Redz Hub)
 local function SmoothTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
 
-        -- Make sure it's fast and ultra smooth
+        -- Adjust teleport speed to match Redz Hub
         local distance = (hrp.Position - targetPos).Magnitude
-        local tweenTime = math.clamp(distance / 1, 0.5, 2) -- Smooth but fast
+        local tweenTime = math.clamp(distance / 175, 1, 2.5) -- Smooth, but not too fast
 
         local tweenInfo = TweenInfo.new(tweenTime, Enum.EasingStyle.Linear)
         local tween = TweenService:Create(hrp, tweenInfo, {CFrame = CFrame.new(targetPos)})
 
-        -- Enable NoClip for seamless teleport
+        -- NoClip Handling
         local function EnableNoclip()
             for _, v in pairs(char:GetDescendants()) do
                 if v:IsA("BasePart") then
@@ -46,7 +46,7 @@ local function SmoothTeleport(targetPos)
             end
         end
 
-        -- Prevent character freezing
+        -- Prevent rendering issues
         local function ResetCharacter()
             if char:FindFirstChildOfClass("Humanoid") then
                 local humanoid = char:FindFirstChildOfClass("Humanoid")
@@ -55,16 +55,16 @@ local function SmoothTeleport(targetPos)
             end
         end
 
-        -- Start teleport
+        -- Execute teleport
         EnableNoclip()
         tween:Play()
 
-        -- Ensure proper rendering and reset character
+        -- Ensure proper character rendering and reset movement
         tween.Completed:Connect(function()
-            wait(0.3)
+            wait(0.4)
             DisableNoclip()
             ResetCharacter()
-            print("Smooth Teleport Complete!")
+            print("Teleportation Successful!")
         end)
     end
 end
