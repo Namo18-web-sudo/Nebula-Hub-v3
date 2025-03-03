@@ -18,8 +18,17 @@ local function SafeTeleport(targetPos)
     local char = game.Players.LocalPlayer.Character
     if char and char:FindFirstChild("HumanoidRootPart") then
         local hrp = char.HumanoidRootPart
-        hrp.CFrame = CFrame.new(targetPos)
-        wait(0.5) -- Small delay to prevent rubberbanding
+        local distance = (hrp.Position - targetPos).Magnitude
+        
+        -- Gradual teleport for safety
+        while distance > 5 do
+            hrp.CFrame = CFrame.new(targetPos)
+            wait(0.1) -- Small delay to prevent rubberbanding
+            distance = (hrp.Position - targetPos).Magnitude
+        end
+        
+        -- **Teleport Complete**
+        print("Teleport complete!")
     end
 end
 
